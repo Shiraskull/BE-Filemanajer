@@ -8,6 +8,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 Route::get('/folder',[WebController::class,'getFolder']);
+Route::get('/folder/{id}',[WebController::class,'selectFolder']);
 Route::post('/post-folder',[WebController::class,'postFolder']);
 Route::delete('/delete-folder/{id}',[WebController::class,'deleteFolder']);
 Route::put('/update-folder/{id}',[WebController::class,'updateFolder']);

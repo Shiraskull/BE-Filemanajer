@@ -20,6 +20,14 @@ class WebController extends Controller
                         ->get();
         return  FolderResource::collection($data);
     }
+    public function selectFolder(string $id){
+        $data = Folder::with('subfolders','files')
+                        ->where('id', $id)  
+                        ->whereNull('deleted_at')
+                        ->whereNull('folder_id')
+                        ->get();
+        return  FolderResource::collection($data);
+    }
     public function postFolder(Request $request)
     {
         $request->validate([
@@ -60,6 +68,12 @@ class WebController extends Controller
 
     //file
     public function getFile(){
+        $softDeletedFiles = File::withTrashed()->get();
+
+        // Iterasi melalui setiap instance model dan panggil restore()
+        foreach ($softDeletedFiles as $file) {
+            $file->restore();
+        }
         $data = DB::table('file')->select('*')->whereNull('deleted_at')->get();
         return response()->json($data);
     }
@@ -89,6 +103,8 @@ class WebController extends Controller
     }
     public function deleteFile(string $id)
     {
+        File::withTrashed()->all()->restore();
+        
         $data = File::findOrFail($id);
         $data->delete();
         return response()->json('data berhasil di hapus');
